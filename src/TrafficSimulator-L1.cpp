@@ -8,6 +8,8 @@
 #include "Vehicle.h"
 
 // NYC
+// Reference of shared ptr is passed to create Traffic Objects
+//
 void createTrafficObjects(
     std::vector<std::shared_ptr<Street>> &streets,
     std::vector<std::shared_ptr<Intersection>> &intersections,
@@ -78,7 +80,7 @@ int main() {
   // Task L1.3 : Vary the number of simulated vehicles and use the top function
   // on the terminal or the task manager of your system to observe the number of
   // threads used by the simulation.
-  int nVehicles = 4;
+  int nVehicles = 6;
   createTrafficObjects(streets, intersections, vehicles, backgroundImg,
                        nVehicles);
 
@@ -92,6 +94,7 @@ int main() {
 
   // add all objects into common vector
   std::vector<std::shared_ptr<TrafficObject>> trafficObjects;
+
   std::for_each(intersections.begin(), intersections.end(),
                 [&trafficObjects](std::shared_ptr<Intersection> &intersection) {
                   std::shared_ptr<TrafficObject> trafficObject =
