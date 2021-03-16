@@ -21,7 +21,7 @@ void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination) {
 
 void Vehicle::simulate() {
   // launch drive function in a thread
-  threads.emplace_back(std::thread(&Vehicle::drive, this));
+  _threads.emplace_back(std::thread(&Vehicle::drive, this));
 }
 
 // virtual function which is executed in a thread
@@ -79,6 +79,11 @@ void Vehicle::drive() {
         // _currDestination and a shared pointer to this using the
         // get_shared_this() function. Then, wait for the data to be available
         // before proceeding to slow down.
+        auto ftrIntersection = std::async(&Intersection::addVehicleToQueue,
+                                          _currDestination, get_shared_this());
+
+        // Wait
+        ftrIntersection.get();
 
         // slow down and set intersection flag
         _speed /= 10.0;
