@@ -3,3 +3,16 @@ Traffic Object --> Base Class
 Starting a Thread with Member funciton, this parameter
 Shared Pointer --> std::sthar
 https://stackoverflow.com/questions/712279/what-is-the-usefulness-of-enable-shared-from-this
+
+Lesson 1 Topics
+1. threads
+2. passing data to threads
+3. Varidiac Template
+4. Running Multiple threads
+
+Lesson 2 Topics
+1. Thread vs Task
+2. Task --> Async funciton
+3. Promises and Futures --> Communication Channel
+4. Avoiding data Races
+

@@ -1,6 +1,6 @@
+#include "Vehicle.h"
 #include "Intersection.h"
 #include "Street.h"
-#include "Vehicle.h"
 #include <iostream>
 #include <random>
 
@@ -20,10 +20,8 @@ void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination) {
 }
 
 void Vehicle::simulate() {
-  // Task L1.2 : Start a thread with the member function âdriveâ and
-  // the object âthisâ as the launch parameters. Also, add the created
-  // thread into the _thread vector of the parent class.
-  _threads.emplace_back(std::thread(&Vehicle::drive, this));
+  // launch drive function in a thread
+  threads.emplace_back(std::thread(&Vehicle::drive, this));
 }
 
 // virtual function which is executed in a thread
@@ -76,6 +74,12 @@ void Vehicle::drive() {
 
       // check wether halting position in front of destination has been reached
       if (completion >= 0.9 && !hasEnteredIntersection) {
+        // Task L2.1 : Start up a task using std::async which takes a reference
+        // to the method Intersection::addVehicleToQueue, the object
+        // _currDestination and a shared pointer to this using the
+        // get_shared_this() function. Then, wait for the data to be available
+        // before proceeding to slow down.
+
         // slow down and set intersection flag
         _speed /= 10.0;
         hasEnteredIntersection = true;
@@ -105,6 +109,9 @@ void Vehicle::drive() {
                     _currDestination->getID()
                 ? nextStreet->getOutIntersection()
                 : nextStreet->getInIntersection();
+
+        // send signal to intersection that vehicle has left the intersection
+        _currDestination->vehicleHasLeft(get_shared_this());
 
         // assign new street and destination
         this->setCurrentDestination(nextIntersection);
