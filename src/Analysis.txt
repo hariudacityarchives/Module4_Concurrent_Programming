@@ -1,1 +1,5 @@
 Traffic Object --> Base Class
+
+Starting a Thread with Member funciton, this parameter
+Shared Pointer --> std::sthar
+https://stackoverflow.com/questions/712279/what-is-the-usefulness-of-enable-shared-from-this
