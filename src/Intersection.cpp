@@ -10,6 +10,10 @@
 
 /* Implementation of class "WaitingVehicles" */
 
+// L3.1 : Safeguard all accesses to the private members _vehicles and _promises
+// with an appropriate locking mechanism, that will not cause a deadlock
+// situation where access to the resources is accidentally blocked.
+
 int WaitingVehicles::getSize() { return _vehicles.size(); }
 
 void WaitingVehicles::pushBack(std::shared_ptr<Vehicle> vehicle,
@@ -19,12 +23,15 @@ void WaitingVehicles::pushBack(std::shared_ptr<Vehicle> vehicle,
 }
 
 void WaitingVehicles::permitEntryToFirstInQueue() {
-  // L2.3 : First, get the entries from the front of _promises and _vehicles.
+  // get entries from the front of both queues
   auto firstPromise = _promises.begin();
   auto firstVehicle = _vehicles.begin();
-  // Then, fulfill promise and send signal back that permission to enter has
+
+  // fulfill promise and send signal back that permission to enter has been
+  // granted
   firstPromise->set_value();
-  // been granted. Finally, remove the front elements from both queues.
+
+  // remove front elements from both queues
   _vehicles.erase(firstVehicle);
   _promises.erase(firstPromise);
 }
@@ -58,18 +65,23 @@ Intersection::queryStreets(std::shared_ptr<Street> incoming) {
 // adds a new vehicle to the queue and returns once the vehicle is allowed to
 // enter
 void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle) {
+  // L3.3 : Ensure that the text output locks the console as a shared resource.
+  // Use the mutex _mtxCout you have added to the base class TrafficObject in
+  // the previous task. Make sure that in between the two calls to std-cout at
+  // the beginning and at the end of addVehicleToQueue the lock is not held.
+
   std::cout << "Intersection #" << _id
             << "::addVehicleToQueue: thread id = " << std::this_thread::get_id()
             << std::endl;
 
-  // L2.2 : First, add the new vehicle to the waiting line by creating a
-  // promise, a corresponding future and then adding both to _waitingVehicles.
-  std::promise<void> prmsIntersection;
-  std::future<void> ftrIntersection = prmsIntersection.get_future();
-  _waitingVehicles.pushBack(vehicle, std::move(prmsIntersection));
-  // Then, wait until the vehicle has been granted entry.
-  ftrIntersection.wait();
+  // add new vehicle to the end of the waiting line
+  std::promise<void> prmsVehicleAllowedToEnter;
+  std::future<void> ftrVehicleAllowedToEnter =
+      prmsVehicleAllowedToEnter.get_future();
+  _waitingVehicles.pushBack(vehicle, std::move(prmsVehicleAllowedToEnter));
 
+  // wait until the vehicle is allowed to enter
+  ftrVehicleAllowedToEnter.wait();
   std::cout << "Intersection #" << _id << ": Vehicle #" << vehicle->getID()
             << " is granted entry." << std::endl;
 }
@@ -92,7 +104,7 @@ void Intersection::setIsBlocked(bool isBlocked) {
 void Intersection::simulate() // using threads + promises/futures + exceptions
 {
   // launch vehicle queue processing in a thread
-  _threads.emplace_back(std::thread(&Intersection::processVehicleQueue, this));
+  threads.emplace_back(std::thread(&Intersection::processVehicleQueue, this));
 }
 
 void Intersection::processVehicleQueue() {

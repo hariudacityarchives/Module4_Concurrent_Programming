@@ -4,6 +4,7 @@
 #include "TrafficObject.h"
 #include <future>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 // forward declarations to avoid include cycle
